@@ -1,4 +1,4 @@
-puzzle_id,pieza_a,pieza_b,etiqueta_visible
+puzzle_id,pieza_a,pieza_b,estilo
 P001,1,2,a
 P001,2,3,b
 P001,2,4,c

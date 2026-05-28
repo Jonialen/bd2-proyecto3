@@ -45,7 +45,7 @@ class Connection:
     puzzle_id: str
     pieza_a: int
     pieza_b: int
-    etiqueta_visible: str
+    estilo: str
     conector_id: str
 
 
@@ -155,7 +155,7 @@ def load_connections(piece_keys: set[tuple[str, int]]) -> list[Connection]:
                 puzzle_id=puzzle_id,
                 pieza_a=pieza_a,
                 pieza_b=pieza_b,
-                etiqueta_visible=required(row, "etiqueta_visible", source, line_number),
+                estilo=required(row, "estilo", source, line_number),
                 conector_id=f"C{counters[puzzle_id]:03d}",
             )
         )
@@ -227,7 +227,7 @@ def write_dataset(puzzles: list[Puzzle], pieces: list[Piece], connections: list[
                 MATCH (b:Piece {piece_id: row.piece_b_id})
                 CREATE (a)-[:CONNECTS {
                     conector_id: row.conector_id,
-                    etiqueta_visible: row.etiqueta_visible
+                    estilo: row.estilo
                 }]->(b)
                 """,
                 connections=[
@@ -235,7 +235,7 @@ def write_dataset(puzzles: list[Puzzle], pieces: list[Piece], connections: list[
                         "piece_a_id": f"{c.puzzle_id}-{c.pieza_a}",
                         "piece_b_id": f"{c.puzzle_id}-{c.pieza_b}",
                         "conector_id": c.conector_id,
-                        "etiqueta_visible": c.etiqueta_visible,
+                        "estilo": c.estilo,
                     }
                     for c in connections
                 ],

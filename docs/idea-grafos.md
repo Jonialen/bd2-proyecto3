@@ -10,7 +10,7 @@ La solución propone representar el rompecabezas como un grafo: cada pieza es un
 | Pieza | Nodo `Piece` |
 | Unión entre piezas | Relación `CONNECTS` |
 | Unión física identificable | Propiedad `conector_id` de la relación |
-| Flechita, letra o marca visible | Propiedad `etiqueta_visible` de la relación |
+| Flechita o letra visible | Propiedad `estilo` de la relación |
 | Pieza faltante | `Piece.disponible = false` |
 | Fragmento armable | Componente conectado del grafo disponible |
 
@@ -25,9 +25,9 @@ Pieza 3 --[C003 / c]-- Pieza 7
 Instrucciones generadas:
 
 ```text
-Conectar la pieza 1 con la pieza 3 usando la marca visible "a".
-Conectar la pieza 1 con la pieza 5 usando la marca visible "b".
-Conectar la pieza 3 con la pieza 7 usando la marca visible "c".
+Conectar la pieza 1 con la pieza 3 juntando las flechitas "a".
+Conectar la pieza 1 con la pieza 5 juntando las flechitas "b".
+Conectar la pieza 3 con la pieza 7 juntando las flechitas "c".
 ```
 
 ## Por qué no usar coordenadas fijas
@@ -66,7 +66,7 @@ Esta posición topológica es más flexible y permite representar rompecabezas c
 
 (:Piece)-[:CONNECTS {
   conector_id: "C001",
-  etiqueta_visible: "a"
+  estilo: "a"
 }]-(:Piece)
 ```
 
@@ -99,7 +99,7 @@ El modelo debe guardar únicamente los datos necesarios para identificar el romp
 | `pieza_origen` | Pieza desde la cual se registra la conexión. |
 | `pieza_destino` | Pieza con la que se conecta. |
 | `conector_id` | Identificador único de la unión dentro del rompecabezas. |
-| `etiqueta_visible` | Marca física visible usada por la persona para conectar las piezas. |
+| `estilo` | Flechita o letra visible usada por la persona para conectar las piezas. |
 
 Ejemplo:
 
@@ -107,13 +107,13 @@ Ejemplo:
 pieza_origen: 1
 pieza_destino: 3
 conector_id: C001
-etiqueta_visible: a
+estilo: a
 ```
 
 Instrucción generada:
 
 ```text
-Conectar la pieza 1 con la pieza 3 usando la marca visible "a".
+Conectar la pieza 1 con la pieza 3 juntando las flechitas "a".
 ```
 
 El modelo puede aceptar más propiedades descriptivas, como color, forma, tamaño o notas, pero el algoritmo no depende de ellas. Para resolver el problema, lo esencial es conocer las piezas disponibles y las conexiones entre ellas.
@@ -130,20 +130,20 @@ C002 identifica únicamente la unión entre la pieza 1 y la pieza 5.
 C003 identifica únicamente la unión entre la pieza 3 y la pieza 7.
 ```
 
-La marca física que ve la persona puede guardarse aparte en `etiqueta_visible`.
+La flechita o letra que ve la persona puede guardarse aparte en `estilo`.
 
 ```text
 conector_id: identificador único para la base de datos y el algoritmo.
-etiqueta_visible: letra, flecha o marca escrita físicamente en las piezas.
+estilo: letra o flechita escrita físicamente en las piezas.
 ```
 
 Esto permite generar instrucciones claras sin depender de que las letras visibles sean únicas.
 
 ```text
-Conectar la pieza 1 con la pieza 3 usando la marca visible "a".
+Conectar la pieza 1 con la pieza 3 juntando las flechitas "a".
 ```
 
-Si se quiere máxima claridad en la demo, se recomienda que la marca visible también sea única. Sin embargo, el campo obligatorio para evitar confusión en la base de datos debe ser `conector_id`.
+Si se quiere máxima claridad en la demo, se recomienda que el `estilo` también sea único. Sin embargo, el campo obligatorio para evitar confusión en la base de datos debe ser `conector_id`.
 
 ### Campos opcionales para mejorar el modelo
 
@@ -152,7 +152,7 @@ Si el rompecabezas tiene información adicional, se podrían agregar propiedades
 ```cypher
 (:Piece)-[:CONNECTS {
   conector_id: "C001",
-  etiqueta_visible: "a",
+  estilo: "a",
   descripcion: "flechita a",
   orientacion_relativa: "opcional",
   notas: "opcional"
@@ -313,7 +313,7 @@ MATCH (a:Piece {piece_id: "P001-1"})
 MATCH (b:Piece {piece_id: "P001-3"})
 CREATE (a)-[:CONNECTS {
   conector_id: "C001",
-  etiqueta_visible: "a"
+  estilo: "a"
 }]-(b);
 ```
 
@@ -340,7 +340,7 @@ WHERE a.disponible = true
 RETURN a.numero AS pieza_a,
        b.numero AS pieza_b,
        r.conector_id AS conector_id,
-       r.etiqueta_visible AS etiqueta_visible
+       r.estilo AS estilo
 ORDER BY a.numero, b.numero;
 ```
 
@@ -354,7 +354,7 @@ WHERE vecina.disponible = true
 RETURN vecina.piece_id AS piece_id,
        vecina.numero AS numero,
        r.conector_id AS conector_id,
-       r.etiqueta_visible AS etiqueta_visible
+       r.estilo AS estilo
 ORDER BY vecina.numero;
 ```
 
@@ -432,7 +432,7 @@ piece_id generado: P001-4
 ### `connections.csv`
 
 ```csv
-puzzle_id,pieza_a,pieza_b,etiqueta_visible
+puzzle_id,pieza_a,pieza_b,estilo
 P001,1,3,a
 P001,1,4,b
 P001,2,4,c
@@ -459,7 +459,7 @@ Manual:
 - disponible
 - pieza_a
 - pieza_b
-- etiqueta_visible
+- estilo
 
 Automático:
 - piece_id
@@ -515,9 +515,9 @@ Iniciando armado del rompecabezas P001 desde la pieza 4.
 ### Conexión normal
 
 ```text
-Paso 1: conectar la pieza 4 con la pieza 7 usando la marca visible "a".
-Paso 2: conectar la pieza 4 con la pieza 2 usando la marca visible "b".
-Paso 3: conectar la pieza 7 con la pieza 9 usando la marca visible "c".
+Paso 1: conectar la pieza 4 con la pieza 7 juntando las flechitas "a".
+Paso 2: conectar la pieza 4 con la pieza 2 juntando las flechitas "b".
+Paso 3: conectar la pieza 7 con la pieza 9 juntando las flechitas "c".
 ```
 
 Cada instrucción debe indicar:
@@ -525,14 +525,14 @@ Cada instrucción debe indicar:
 - número de paso;
 - pieza ya alcanzada por el recorrido;
 - pieza nueva que se debe conectar;
-- marca visible o conector que permite unirlas.
+- flechitas o conector que permite unirlas.
 
 ### Pieza faltante
 
 Si una conexión apunta a una pieza marcada como no disponible, se debe mostrar un aviso.
 
 ```text
-Aviso: la pieza 3 no está disponible. No se puede realizar la conexión C004.
+Aviso: la pieza 3 no está disponible. No se puede realizar la conexión juntando las flechitas "d" (C004).
 ```
 
 ### Fragmento desconectado
@@ -594,7 +594,7 @@ P001,15,true
 ### Conexiones
 
 ```csv
-puzzle_id,pieza_a,pieza_b,etiqueta_visible
+puzzle_id,pieza_a,pieza_b,estilo
 P001,1,2,a
 P001,2,3,b
 P001,2,4,c
@@ -617,24 +617,24 @@ Si el algoritmo inicia desde la pieza 4:
 ```text
 Iniciando armado del rompecabezas P001 desde la pieza 4.
 
-Paso 1: conectar la pieza 4 con la pieza 2 usando la marca visible "c".
-Paso 2: conectar la pieza 4 con la pieza 5 usando la marca visible "d".
-Paso 3: conectar la pieza 2 con la pieza 1 usando la marca visible "a".
-Paso 4: conectar la pieza 2 con la pieza 3 usando la marca visible "b".
-Aviso: la pieza 6 no está disponible. No se puede realizar la conexión con la marca visible "e".
-Paso 5: conectar la pieza 3 con la pieza 7 usando la marca visible "f".
-Paso 6: conectar la pieza 7 con la pieza 8 usando la marca visible "g".
-Paso 7: conectar la pieza 8 con la pieza 9 usando la marca visible "h".
-Paso 8: conectar la pieza 9 con la pieza 10 usando la marca visible "i".
-Paso 9: conectar la pieza 10 con la pieza 11 usando la marca visible "j".
-Aviso: la pieza 12 no está disponible. No se puede realizar la conexión con la marca visible "k".
+Paso 1: conectar la pieza 4 con la pieza 2 juntando las flechitas "c" (C003).
+Paso 2: conectar la pieza 4 con la pieza 5 juntando las flechitas "d" (C004).
+Paso 3: conectar la pieza 2 con la pieza 1 juntando las flechitas "a" (C001).
+Paso 4: conectar la pieza 2 con la pieza 3 juntando las flechitas "b" (C002).
+Aviso: la pieza 6 no está disponible. No se puede realizar la conexión juntando las flechitas "e" (C005).
+Paso 5: conectar la pieza 3 con la pieza 7 juntando las flechitas "f" (C006).
+Paso 6: conectar la pieza 7 con la pieza 8 juntando las flechitas "g" (C007).
+Paso 7: conectar la pieza 8 con la pieza 9 juntando las flechitas "h" (C008).
+Paso 8: conectar la pieza 9 con la pieza 10 juntando las flechitas "i" (C009).
+Paso 9: conectar la pieza 10 con la pieza 11 juntando las flechitas "j" (C010).
+Aviso: la pieza 12 no está disponible. No se puede realizar la conexión juntando las flechitas "k" (C011).
 
 El rompecabezas quedó fragmentado.
 No hay más conexiones disponibles desde el fragmento actual.
 Iniciando nuevo fragmento desde la pieza 13.
 
-Paso 10: conectar la pieza 13 con la pieza 14 usando la marca visible "l".
-Paso 11: conectar la pieza 14 con la pieza 15 usando la marca visible "m".
+Paso 10: conectar la pieza 13 con la pieza 14 juntando las flechitas "l" (C012).
+Paso 11: conectar la pieza 14 con la pieza 15 juntando las flechitas "m" (C013).
 
 Armado finalizado.
 Piezas disponibles armadas: 13

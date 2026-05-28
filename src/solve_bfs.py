@@ -22,7 +22,7 @@ class Neighbor:
     numero: int
     disponible: bool
     conector_id: str
-    etiqueta_visible: str
+    estilo: str
 
 
 def parse_args() -> argparse.Namespace:
@@ -57,7 +57,7 @@ def load_graph(puzzle_id: str) -> tuple[dict[int, PieceInfo], dict[int, list[Nei
                        b.numero AS pieza_b,
                        b.disponible AS disponible_b,
                        c.conector_id AS conector_id,
-                       c.etiqueta_visible AS etiqueta_visible
+                       c.estilo AS estilo
                 """,
                 puzzle_id=puzzle_id,
             ))
@@ -72,8 +72,8 @@ def load_graph(puzzle_id: str) -> tuple[dict[int, PieceInfo], dict[int, list[Nei
         if key in seen_relationships:
             continue
         seen_relationships.add(key)
-        adjacency[a].append(Neighbor(b, row["disponible_b"], conector_id, row["etiqueta_visible"]))
-        adjacency[b].append(Neighbor(a, row["disponible_a"], conector_id, row["etiqueta_visible"]))
+        adjacency[a].append(Neighbor(b, row["disponible_b"], conector_id, row["estilo"]))
+        adjacency[b].append(Neighbor(a, row["disponible_a"], conector_id, row["estilo"]))
 
     for neighbors in adjacency.values():
         neighbors.sort(key=lambda neighbor: (neighbor.numero, neighbor.conector_id))
@@ -108,7 +108,7 @@ def solve(puzzle_id: str, start: int, pieces: dict[int, PieceInfo], adjacency: d
                         missing_warned.add(neighbor.numero)
                         print(
                             f'Aviso: la pieza {neighbor.numero} no está disponible. '
-                            f'No se puede realizar la conexión con la marca visible "{neighbor.etiqueta_visible}" '
+                            f'No se puede realizar la conexión juntando las flechitas "{neighbor.estilo}" '
                             f'({neighbor.conector_id}).'
                         )
                     continue
@@ -118,7 +118,7 @@ def solve(puzzle_id: str, start: int, pieces: dict[int, PieceInfo], adjacency: d
                 queue.append(neighbor.numero)
                 print(
                     f'Paso {step}: conectar la pieza {current} con la pieza {neighbor.numero} '
-                    f'usando la marca visible "{neighbor.etiqueta_visible}" ({neighbor.conector_id}).'
+                    f'juntando las flechitas "{neighbor.estilo}" ({neighbor.conector_id}).'
                 )
                 step += 1
 

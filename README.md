@@ -41,12 +41,13 @@ Manual CSV entry does not require generated domain IDs.
 |---|---|
 | `data/puzzles.csv` | Puzzle metadata: `puzzle_id,marca,tema,material,total_piezas` |
 | `data/pieces.csv` | Piece availability: `puzzle_id,numero,disponible` |
-| `data/connections.csv` | Physical matches: `puzzle_id,pieza_a,pieza_b,etiqueta_visible` |
+| `data/connections.csv` | Physical matches: `puzzle_id,pieza_a,pieza_b,estilo` |
 
 During ingest, the script generates:
 
 - `piece_id` as `{puzzle_id}-{numero}`, for example `P001-4`.
 - `conector_id` as `C001`, `C002`, ... in CSV connection order per puzzle.
+- `estilo` stores the visible arrow/letter used to join each physical match.
 
 ## Demo behavior
 
